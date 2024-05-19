@@ -67,7 +67,7 @@ struct List: ParsableCommand {
 
   private var activeApps: [App] = {
     var apps = [App]()
-    if let dat = Utils.shell("yabai -m query --windows").data(using: .utf8) {
+    if let data = Utils.shell("yabai -m query --windows").data(using: .utf8) {
       do {
         apps = try JSONDecoder().decode([App].self, from: data)
       } catch {
