@@ -110,7 +110,7 @@ struct List: ParsableCommand {
     }
   }()
 
-  private lazy var idleApplications = Set(
+  private lazy var idleApplications = Array(Set(
     NSWorkspace.shared.runningApplications
       .map {
         App(
@@ -123,17 +123,35 @@ struct List: ParsableCommand {
       }
   )
   .intersection(Set(installedApplications))
-  .symmetricDifference(Set(activeApps))
+  .symmetricDifference(Set(activeApps)))
+    .sorted {
+      if let first = $0.app, let second = $1.app {
+        return second > first
+      }
+      return true
+    }
 
-  private lazy var inactiveApplications = Set(installedApplications).symmetricDifference(idleApplications)
+  private lazy var inactiveApplications = Array(Set(installedApplications)
+    .symmetricDifference(idleApplications)
+    .symmetricDifference(Set(activeApps)))
+    .sorted {
+      if let first = $0.app, let second = $1.app {
+        return second > first
+      }
+      return true
+    }
 
   struct Container: Codable {
     let active: [App]
-    let idle: Set<App>
-    let inactive: Set<App>
+    let idle: [App]
+    let inactive: [App]
   }
 
-  private lazy var container = Container(active: activeApps, idle: idleApplications, inactive: inactiveApplications)
+  private lazy var container = Container(
+    active: activeApps,
+    idle: idleApplications,
+    inactive: inactiveApplications
+  )
 
   mutating func run() throws {
     switch apps {
