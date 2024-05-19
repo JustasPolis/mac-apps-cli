@@ -1,24 +1,30 @@
 import ArgumentParser
 
 struct Open: ParsableCommand {
-  @Flag(help: "Include a counter with each repetition.")
-  var includeCounter = false
+  static let configuration = CommandConfiguration(
+    abstract: "Process a command with either an ID or a path."
+  )
 
-  @Option(name: .shortAndLong, help: "The number of times to repeat 'phrase'.")
-  var count: Int? = nil
+  @Option(name: .shortAndLong, help: "The ID of window")
+  var id: Int?
 
-  @Argument(help: "The phrase to repeat.")
-  var phrase: String
+  @Option(name: .shortAndLong, help: "The path to executable.")
+  var path: String?
 
-  mutating func run() throws {
-    let repeatCount = count ?? 2
+  func validate() throws {
+    guard id != nil || path != nil else {
+      throw ValidationError("You must provide either --id or --path.")
+    }
+    guard !(id != nil && path != nil) else {
+      throw ValidationError("You can provide only one of --id or --path.")
+    }
+  }
 
-    for i in 1...repeatCount {
-      if includeCounter {
-        print("\(i): \(phrase)")
-      } else {
-        print(phrase)
-      }
+  func run() throws {
+    if let id = id {
+      print("Processing with ID: \(id)")
+    } else if let path = path {
+      print("Processing with path: \(path)")
     }
   }
 }

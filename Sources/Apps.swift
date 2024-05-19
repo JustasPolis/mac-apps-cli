@@ -24,7 +24,7 @@ enum Utils {
   }
 }
 
-struct Apps: ParsableCommand {
+struct List: ParsableCommand {
   @Argument(help: "list apps, can be all, inactive, idle, active")
   var apps: String
 
@@ -77,7 +77,7 @@ struct Apps: ParsableCommand {
     return apps
   }()
 
-  private var installedApplications: [Apps.App] = {
+  private var installedApplications: [List.App] = {
     let fileManager = FileManager.default
     let systemApplicationsURL = URL(fileURLWithPath: "/System/Applications")
     let keys: [URLResourceKey] = [.nameKey]

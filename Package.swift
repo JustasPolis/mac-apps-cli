@@ -4,14 +4,14 @@
 import PackageDescription
 
 let package = Package(
-  name: "swift",
+  name: "mac-apps",
   platforms: [.macOS(.v14)],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser", exact: "1.3.0"),
   ],
   targets: [
     .executableTarget(
-      name: "swift",
+      name: "mac-apps",
       dependencies: [
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
       ]
