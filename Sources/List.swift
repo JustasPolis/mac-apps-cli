@@ -15,8 +15,8 @@ enum Utils {
     task.standardOutput = pipe
     task.standardError = pipe
     task.arguments = ["-c", command]
-    task.launchPath = "/bin/zsh"
     task.standardInput = nil
+    task.launchPath = "/bin/sh"
     task.launch()
     let data = pipe.fileHandleForReading.readDataToEndOfFile()
     let output = String(data: data, encoding: .utf8)!
@@ -67,7 +67,7 @@ struct List: ParsableCommand {
 
   private var activeApps: [App] = {
     var apps = [App]()
-    if let data = Utils.shell("yabai -m query --windows").data(using: .utf8) {
+    if let dat = Utils.shell("yabai -m query --windows").data(using: .utf8) {
       do {
         apps = try JSONDecoder().decode([App].self, from: data)
       } catch {
