@@ -9,18 +9,20 @@ enum Utils {
     }
   }
 
-  static func shell(_ command: String) -> String {
+  static func shell(_ command: String, completion: @escaping (Data) -> Void) {
     let task = Process()
     let pipe = Pipe()
     task.standardOutput = pipe
     task.standardError = pipe
+    task.terminationHandler = { _ in
+      let data = pipe.fileHandleForReading.readDataToEndOfFile()
+
+      completion(data)
+    }
     task.arguments = ["-c", command]
     task.standardInput = nil
     task.launchPath = "/bin/sh"
     task.launch()
-    let data = pipe.fileHandleForReading.readDataToEndOfFile()
-    let output = String(data: data, encoding: .utf8)!
-    return output
   }
 }
 
@@ -67,7 +69,7 @@ struct List: ParsableCommand {
 
   private var activeApps: [App] = {
     var apps = [App]()
-    if let data = Utils.shell("yabai -m query --windows").data(using: .utf8) {
+    Utils.shell("yabai -m query --windows") { data in
       do {
         apps = try JSONDecoder().decode([App].self, from: data)
       } catch {
@@ -110,7 +112,7 @@ struct List: ParsableCommand {
     }
   }()
 
-  private lazy var idleApplications = Array(Set(
+  private lazy var idleApplications = Set(
     NSWorkspace.shared.runningApplications
       .map {
         App(
@@ -123,28 +125,23 @@ struct List: ParsableCommand {
       }
   )
   .intersection(Set(installedApplications))
-  .symmetricDifference(Set(activeApps)))
-    .sorted {
-      if let first = $0.app, let second = $1.app {
-        return second > first
-      }
-      return true
-    }
+  .symmetricDifference(Set(activeApps))
 
-  private lazy var inactiveApplications = Array(Set(installedApplications)
-    .symmetricDifference(idleApplications)
-    .symmetricDifference(Set(activeApps)))
+  private lazy var inactiveApplications = Set(installedApplications).symmetricDifference(idleApplications)
+    .symmetricDifference(Set(activeApps))
+
+  private lazy var sortedInactiveApplications = Array(inactiveApplications)
     .sorted {
       if let first = $0.app, let second = $1.app {
-        return second > first
+        return first > second
       }
       return true
     }
 
   struct Container: Codable {
     let active: [App]
-    let idle: [App]
-    let inactive: [App]
+    let idle: Set<App>
+    let inactive: Set<App>
   }
 
   private lazy var container = Container(

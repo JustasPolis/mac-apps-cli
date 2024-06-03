@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "name": "Debug mac-apps",
+            "program": "${workspaceFolder:mac-apps-cli}/.build/debug/mac-apps",
+            "args": [],
+            "cwd": "${workspaceFolder:mac-apps-cli}",
+            "preLaunchTask": "swift: Build Debug mac-apps"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "name": "Release mac-apps",
+            "program": "${workspaceFolder:mac-apps-cli}/.build/release/mac-apps",
+            "args": [],
+            "cwd": "${workspaceFolder:mac-apps-cli}",
+            "preLaunchTask": "swift: Build Release mac-apps"
+        }
+    ]
+}
